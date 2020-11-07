@@ -4,10 +4,22 @@ class Account {
 
   constructor(username) {
     this.username = username;
-    this.balance = 0;
+    this.transactions = [];
+  }
+
+  get balance() {
+    // Calculate the balance using the transaction objects.
+    let sum = 0;
+    this.transactions.forEach(t => sum += t.value);
+    return sum;
+  }
+
+  addTransaction(transaction) {
+    this.transactions.push(transaction);
   }
 
 }
+
 
 class Transaction {
 
@@ -16,8 +28,19 @@ class Transaction {
     this.account = account;
   }
 
+  get isAllowed() { //use get if u need to store that value and access like this.isAllowed
+    if (this.account.balance + this.value < 0) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   commit() {
-    this.account.balance += this.value;
+    if (this.isAllowed) {
+      this.time = new Date(); // Add the transaction to the account
+      this.account.addTransaction(this); // Add the transaction to the account
+    }
   }
 
 }
@@ -63,9 +86,11 @@ const myAccount = new Account('billybob');
 console.log('Starting Balance:', myAccount.balance);
 
 const t1 = new Deposit(120.00, myAccount);
+console.log("Deposit val: ", t1.value);
 t1.commit();
 
-const t2 = new Withdrawal(50.00, myAccount);
+const t2 = new Withdrawal(121.00, myAccount);
+console.log("Withdrawal val: ", t2.value);
 t2.commit();
 
 console.log('Ending Balance:', myAccount.balance);
